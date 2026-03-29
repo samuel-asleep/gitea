@@ -297,6 +297,21 @@ func CreateOrganization(ctx context.Context, org *Organization, owner *user_mode
 		return user_model.ErrUserAlreadyExist{Name: org.Name}
 	}
 
+	// If a parent org is set, verify it exists and the owner is a member of it.
+	if org.ParentID != 0 {
+		parentOrg, err := GetOrgByID(ctx, org.ParentID)
+		if err != nil {
+			return fmt.Errorf("get parent organization: %w", err)
+		}
+		isMember, err := IsOrganizationOwner(ctx, parentOrg.ID, owner.ID)
+		if err != nil {
+			return fmt.Errorf("check parent organization ownership: %w", err)
+		}
+		if !isMember {
+			return ErrUserNotAllowedCreateOrg{}
+		}
+	}
+
 	org.LowerName = strings.ToLower(org.Name)
 	if org.Rands, err = user_model.GetUserSalt(); err != nil {
 		return err
@@ -391,6 +406,40 @@ func GetOrgByName(ctx context.Context, name string) (*Organization, error) {
 		return nil, ErrOrgNotExist{0, name}
 	}
 	return u, nil
+}
+
+// GetSubOrgs returns all direct child organizations (subgroups) of the organization.
+func GetSubOrgs(ctx context.Context, orgID int64) ([]*Organization, error) {
+	var orgs []*Organization
+	return orgs, db.GetEngine(ctx).
+		Where("parent_id = ?", orgID).
+		And("type = ?", user_model.UserTypeOrganization).
+		OrderBy("lower_name ASC").
+		Find(&orgs)
+}
+
+// GetParentOrg returns the parent organization of the organization, or nil if it is a top-level org.
+func GetParentOrg(ctx context.Context, org *Organization) (*Organization, error) {
+	if org.ParentID == 0 {
+		return nil, nil
+	}
+	return GetOrgByID(ctx, org.ParentID)
+}
+
+// GetOrgParentChain returns the chain of parent organizations starting from the given org's parent
+// up to the root, ordered from root to immediate parent.
+func GetOrgParentChain(ctx context.Context, org *Organization) ([]*Organization, error) {
+	var chain []*Organization
+	current := org
+	for current.ParentID != 0 {
+		parent, err := GetOrgByID(ctx, current.ParentID)
+		if err != nil {
+			return nil, err
+		}
+		chain = append([]*Organization{parent}, chain...)
+		current = parent
+	}
+	return chain, nil
 }
 
 // GetOrgUserMaxAuthorizeLevel returns highest authorize level of user in an organization

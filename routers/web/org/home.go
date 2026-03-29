@@ -103,6 +103,25 @@ func home(ctx *context.Context, viewRepositories bool) {
 	ctx.Data["DisableNewPullMirrors"] = setting.Mirror.DisableNewPull
 	ctx.Data["ShowMemberAndTeamTab"] = ctx.Org.IsMember || len(members) > 0
 
+	// Load subgroups (child organizations)
+	subOrgs, err := organization.GetSubOrgs(ctx, org.ID)
+	if err != nil {
+		ctx.ServerError("GetSubOrgs", err)
+		return
+	}
+	ctx.Data["SubOrgs"] = subOrgs
+
+	// Load parent organization chain for breadcrumb navigation
+	parentChain, err := organization.GetOrgParentChain(ctx, org)
+	if err != nil {
+		ctx.ServerError("GetOrgParentChain", err)
+		return
+	}
+	ctx.Data["ParentOrgChain"] = parentChain
+	if org.ParentID != 0 && len(parentChain) > 0 {
+		ctx.Data["ParentOrg"] = parentChain[len(parentChain)-1]
+	}
+
 	prepareResult, err := shared_user.RenderUserOrgHeader(ctx)
 	if err != nil {
 		ctx.ServerError("RenderUserOrgHeader", err)

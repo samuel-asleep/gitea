@@ -8,6 +8,19 @@
 				{{if .ProfileReadmeContent}}
 					<div id="readme_profile" class="render-content markup" data-profile-view-as-member="{{.IsViewingOrgAsMember}}">{{.ProfileReadmeContent}}</div>
 				{{end}}
+				{{if .SubOrgs}}
+					<h4 class="ui top attached header">
+						<strong>{{ctx.Locale.Tr "org.subgroups"}}</strong>
+					</h4>
+					<div class="ui attached segment">
+						{{range .SubOrgs}}
+							<div class="item tw-flex tw-items-center tw-gap-2 tw-py-1">
+								{{ctx.AvatarUtils.Avatar .AsUser 24}}
+								<a href="{{.HomeLink}}">{{.DisplayName}}</a>
+							</div>
+						{{end}}
+					</div>
+				{{end}}
 				{{template "shared/repo/search" .}}
 				{{template "shared/repo/list" .}}
 				{{template "base/paginate" .}}
@@ -79,6 +92,7 @@
 					{{if .IsOrganizationOwner}}
 						<div class="ui bottom attached segment">
 							<a class="ui primary small button" href="{{.OrgLink}}/teams/new">{{ctx.Locale.Tr "org.create_new_team"}}</a>
+							<a class="ui small button tw-mt-1" href="{{AppSubUrl}}/org/{{.Org.Name | PathEscape}}/subgroup/create">{{ctx.Locale.Tr "org.create_new_sub_org"}}</a>
 						</div>
 					{{end}}
 				{{end}}

@@ -148,6 +148,8 @@ type User struct {
 	NumMembers                int
 	Visibility                structs.VisibleType `xorm:"NOT NULL DEFAULT 0"`
 	RepoAdminChangeTeamAccess bool                `xorm:"NOT NULL DEFAULT false"`
+	// ParentID is the ID of the parent organization (for subgroups); 0 means top-level
+	ParentID int64 `xorm:"NOT NULL DEFAULT 0"`
 
 	// Preferences
 	DiffViewStyle       string `xorm:"NOT NULL DEFAULT ''"`

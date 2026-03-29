@@ -28,6 +28,8 @@ type Organization struct {
 	// username of the organization
 	// deprecated
 	UserName string `json:"username"`
+	// ID of the parent organization (0 if top-level)
+	ParentID int64 `json:"parent_id"`
 }
 
 // OrganizationPermissions list different users permissions on an organization
@@ -64,6 +66,8 @@ type CreateOrgOption struct {
 	Visibility string `json:"visibility" binding:"In(,public,limited,private)"`
 	// Whether repository administrators can change team access
 	RepoAdminChangeTeamAccess bool `json:"repo_admin_change_team_access"`
+	// ID of the parent organization for creating a subgroup (0 or omit for top-level)
+	ParentID int64 `json:"parent_id"`
 }
 
 // EditOrgOption options for editing an organization

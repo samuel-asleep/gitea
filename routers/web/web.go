@@ -978,6 +978,9 @@ func registerWebRoutes(m *web.Router, webAuth *AuthMiddleware) {
 			m.Post("/teams/{team}/edit", web.Bind(forms.CreateTeamForm{}), org.EditTeamPost)
 			m.Post("/teams/{team}/delete", org.DeleteTeam)
 
+			m.Get("/subgroup/create", org.CreateSubOrg)
+			m.Post("/subgroup/create", web.Bind(forms.CreateOrgForm{}), org.CreatePost)
+
 			m.Get("/worktime", context.OrgAssignment(context.OrgAssignmentOptions{RequireOwner: true}), org.Worktime)
 
 			m.Group("/settings", func() {

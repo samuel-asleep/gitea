@@ -26,6 +26,8 @@ type CreateOrgForm struct {
 	OrgName                   string `binding:"Required;Username;MaxSize(40)" locale:"org.org_name_holder"`
 	Visibility                structs.VisibleType
 	RepoAdminChangeTeamAccess bool
+	// ParentOrgID is the optional ID of the parent organization when creating a subgroup
+	ParentOrgID int64
 }
 
 // Validate validates the fields
