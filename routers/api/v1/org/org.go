@@ -265,6 +265,7 @@ func Create(ctx *context.APIContext) {
 		Type:                      user_model.UserTypeOrganization,
 		Visibility:                visibility,
 		RepoAdminChangeTeamAccess: form.RepoAdminChangeTeamAccess,
+		ParentID:                  form.ParentID,
 	}
 	if err := organization.CreateOrganization(ctx, org, ctx.Doer); err != nil {
 		if user_model.IsErrUserAlreadyExist(err) ||
